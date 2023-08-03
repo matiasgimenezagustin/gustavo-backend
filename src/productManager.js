@@ -4,7 +4,7 @@ const { saveArchive, readArchive } = require("./fileSystemController.js");
 
 
 class ProductManager {
-    static counterIdPath = "../db/counters.json"
+    static counterIdPath = "./src/db/counters.json"
     static productProperties = ["title", "description", "price", "code", "stock"]
     static errors = {
         incompleteProduct: `The product must have ${ProductManager.productProperties.join(", ")}` ,
