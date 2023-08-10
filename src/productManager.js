@@ -44,10 +44,8 @@ class ProductManager {
         return results.every(result => result)
     }
     addProduct = async (productToAdd) => {
-        
         if(this.hasAllProperties(productToAdd)){
             if(!(this.products.some(product => product.code === productToAdd.code))){
-                console.log("guardado")
                 this.products = [...this.products, {...productToAdd, id: this.counter++}]
                 await saveArchive(this.path, this.products)
                 await saveArchive(ProductManager.counterIdPath, {"productsCounter": this.counter})
