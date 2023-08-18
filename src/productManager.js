@@ -27,12 +27,12 @@ class ProductManager {
             if(!(this.products.some(product => product.code === productToUpdate.code))){
                 this.products[indice] =  {...productToUpdate, id: Number(id)}
                 await saveArchive(this.path, this.products)
-                return this.products
+                return {ok: true, content:this.products}
             }else{
-                return ProductManager.errors.repeatCodeField
+                return {ok: false, error: ProductManager.errors.repeatCodeField}
             }
         }else{
-            return ProductManager.errors.incompleteProduct
+            return {ok: false, error: ProductManager.errors.incompleteProduct}
         }
         
     }
@@ -52,10 +52,10 @@ class ProductManager {
                 const response = await readArchive(this.path)
                 return {...response, ok:true}
             }else{
-                return ProductManager.errors.repeatCodeField
+                return {ok: false, error: ProductManager.errors.repeatCodeField}
             }
         }else{
-            return ProductManager.errors.incompleteProduct
+            return {ok: false, error: ProductManager.errors.incompleteProduct}
         }
         
     }
@@ -64,9 +64,9 @@ class ProductManager {
         return await readArchive(this.path)
         .then(res => {
             if(limit){
-                return res.slice(0, limit)
+                return {ok: true, content:res.slice(0, limit)}
             }else{
-                return res
+                return {ok: true, content:res}
             }
         })
     } 
@@ -78,7 +78,7 @@ class ProductManager {
             if(product){
                 return {ok: true, content: product}
             }else{
-                return ProductManager.errors.notFound
+                return {ok: false, error: ProductManager.errors.notFound}
             }
         } )
     }
@@ -86,10 +86,10 @@ class ProductManager {
         let productsQuantity = this.products.length
         this.products = this.products.filter(product => Number(product.id) !== Number(id))
         if(this.products.length === productsQuantity){
-            return ProductManager.errors.notFound
+            return {ok: false, error: ProductManager.errors.notFound}
         }
         await saveArchive(this.path,this.products)
-        return this.products
+        return {ok: true, content: this.products}
     }
     init = async () =>{
         const currentProducts = await readArchive(this.path)

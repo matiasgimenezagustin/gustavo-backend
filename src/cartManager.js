@@ -14,7 +14,7 @@ class CartManager{
         this.carts.push({products: [], id:this.counter++})
         await saveArchive(this.path, this.carts)
         await saveArchive(CartManager.counterIdPath, {"cartCounter": this.counter})
-        return this.carts
+        return {ok: true, content:this.carts}
     }
 
     async getProductsById (cid){
@@ -24,9 +24,9 @@ class CartManager{
         if(productsFound.products.length === 0){
             return "The cart selected is empty"
         }else if( productsFound.products.length > 0){
-            return productsFound
+            return {ok: true, content:productsFound}
         }else{
-            return 'Cart not found'
+            return {ok: false, error: 'Cart not found'}
         }
     }
     async addProductCart (cid, pid, quantity) {
@@ -40,9 +40,9 @@ class CartManager{
                 this.carts[cartSelectedIndex].products.push({id: pid, quantity: quantity})
             }
             await saveArchive(this.path, this.carts)
-            return this.carts
+            return {ok: true, content:this.carts}
         }else{
-            return 'Cart not found'
+            return {ok: false, error: 'Cart not found'}
         }
     }
     init = async () =>{
@@ -52,6 +52,32 @@ class CartManager{
         this.counter = counterCartsId.cartCounter
         if(currentCarts && currentCarts.length > 0){
             currentCarts.forEach(cart => this.carts.push(cart))
+        }
+    }
+    async deleteProducts(cid, pid, unit){
+        const cartFound =  await this.getProductsById(cid)
+        if(cartFound.ok){
+            this.carts = this.carts.map(cart=> {
+                if(cart.id === cid){
+                    if(cart.cart.some(product => product.id === pid)){
+                        const productToUpdate = cart.cart.find(product => product.id == pid)
+                        if(productToUpdate.quantity >= unit){
+                            cart = cart.map(product =>{
+                                if(product.id === pid){
+                                    product.quantity += unit
+                                }
+                                return product
+                            })
+                        }
+                    }
+                }
+                return cart
+            })
+            await saveArchive(this.path, this.carts)
+            return {ok: true, content :this.carts}
+        }
+        else{
+            return {ok: false, error: "the cart dosn't exist"}
         }
     }
 }
